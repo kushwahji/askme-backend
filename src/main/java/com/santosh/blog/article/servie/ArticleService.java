@@ -24,7 +24,4 @@ public interface ArticleService {
     ArticleDto unfavoriteArticle(final String slug, final UserDto.Auth authUser);
 
     List<ArticleDto> listArticle(final ArticleQueryParam articleQueryParam, final UserDto.Auth authUser);
-
-	List<ArticleDto> search(String title, Auth authUser);
-
 }

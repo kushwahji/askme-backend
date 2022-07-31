@@ -18,10 +18,10 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/articles")
 public class ArticlesController {
-	
+
 	@Autowired
 	private ArticleService articleService;
-	
+
 	@Autowired
 	private CommentService commentService;
 
@@ -36,12 +36,6 @@ public class ArticlesController {
 	public ArticleDto.SingleArticle<ArticleDto> getArticle(@PathVariable String slug,
 			@AuthenticationPrincipal UserDto.Auth authUser) {
 		return new ArticleDto.SingleArticle<>(articleService.getArticle(slug, authUser));
-	}
-
-	@GetMapping("/")
-	public ArticleDto.MultipleArticle search(@RequestParam String title,
-			@AuthenticationPrincipal UserDto.Auth authUser) {
-		return ArticleDto.MultipleArticle.builder().articles(articleService.search(title, authUser)).build();
 	}
 
 	@PutMapping("/{slug}")

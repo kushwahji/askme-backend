@@ -40,10 +40,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
-		http.csrf().disable().formLogin().disable().authorizeRequests().antMatchers("/users/**","/api/articles").permitAll()
-				.antMatchers("/api", "/swagger-ui.html", "/webjars/**", "/swagger-resources/**", "/api-docs")
-				.permitAll().antMatchers(HttpMethod.POST, "/api/users", "/api/users/login").permitAll()
-				.antMatchers(HttpMethod.GET, "/api/articles/**", "/api/articles/**", "/api/profiles/**", "/api/tags")
+		http.csrf().disable().formLogin().disable().authorizeRequests()
+				.antMatchers("/users/**").permitAll()
+				.antMatchers("/api", "/swagger-ui.html", "/webjars/**", "/swagger-resources/**", "/api-docs").permitAll()
+				.antMatchers("*").permitAll()
+				.antMatchers(HttpMethod.POST, "/api/users", "/api/users/login").permitAll()
+				.antMatchers(HttpMethod.GET,"/articles?*" ,"/articles/**", "/api/profiles/**", "/tags")
 				.permitAll().anyRequest().authenticated().and().exceptionHandling()
 				.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)).and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
@@ -60,7 +62,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().antMatchers("/api/articles/**","/v2/api-docs", "/configuration/ui", "/swagger-resources/**",
+		web.ignoring().antMatchers("/api/css/**","/v2/api-docs", "/configuration/ui", "/swagger-resources/**",
 				"/configuration/security", "/swagger-ui.html", "/webjars/**");
 	}
 }

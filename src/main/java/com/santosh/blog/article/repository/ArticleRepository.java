@@ -38,6 +38,4 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity, Long> {
     @Query("SELECT a FROM ArticleEntity a LEFT JOIN FavoriteEntity f ON f.article.id = a.id WHERE f.user.name = :name ORDER BY a.createdAt DESC")
     List<ArticleEntity> findByFavoritedUsername(@Param("name") String name, Pageable pageable);
 
-	List<ArticleEntity> findListBySlugOrTitleOrDescriptionOrBody(String title, String title2, String title3,
-			String title4);
 }

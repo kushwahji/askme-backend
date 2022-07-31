@@ -1,7 +1,5 @@
 package com.santosh.blog.article.servie;
 
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +26,7 @@ import com.santosh.blog.user.entity.UserEntity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Service
 public class ArticleServiceImpl implements ArticleService {
 
@@ -57,7 +56,6 @@ public class ArticleServiceImpl implements ArticleService {
 			tagList.add(ArticleTagRelationEntity.builder().article(articleEntity).tag(tag).build());
 		}
 		articleEntity.setTagList(tagList);
-
 		articleEntity = articleRepository.save(articleEntity);
 		return convertEntityToDto(articleEntity, false, 0L, false);
 	}
@@ -189,8 +187,23 @@ public class ArticleServiceImpl implements ArticleService {
 	}
 
 	private List<ArticleDto> convertToArticleList(List<ArticleEntity> articleEntities, UserDto.Auth authUser) {
+
 		List<Long> authorIds = articleEntities.stream().map(ArticleEntity::getAuthor).map(BaseEntity::getId)
 				.collect(Collectors.toList());
+
+		if (authUser == null) {
+			List<Long> followeeIds = followRepository.findByFollowerIdAndFolloweeIdIn(0L, authorIds).stream()
+					.map(FollowEntity::getFollowee).map(BaseEntity::getId).collect(Collectors.toList());
+			return articleEntities.stream().map(entity -> {
+				List<FavoriteEntity> favorites = entity.getFavoriteList();
+				Boolean favorited = favorites.stream()
+						.anyMatch(favoriteEntity -> favoriteEntity.getUser().getId().equals(0L));
+				int favoriteCount = favorites.size();
+				Boolean following = followeeIds.stream()
+						.anyMatch(followeeId -> followeeId.equals(entity.getAuthor().getId()));
+				return convertEntityToDto(entity, favorited, (long) favoriteCount, following);
+			}).collect(Collectors.toList());
+		}
 		List<Long> followeeIds = followRepository.findByFollowerIdAndFolloweeIdIn(authUser.getId(), authorIds).stream()
 				.map(FollowEntity::getFollowee).map(BaseEntity::getId).collect(Collectors.toList());
 
@@ -203,14 +216,5 @@ public class ArticleServiceImpl implements ArticleService {
 					.anyMatch(followeeId -> followeeId.equals(entity.getAuthor().getId()));
 			return convertEntityToDto(entity, favorited, (long) favoriteCount, following);
 		}).collect(Collectors.toList());
-	}
-
-	@Override
-	public List<ArticleDto> search(String title, Auth authUser) {
-		List<ArticleEntity> articleEntities = null;
-		if (title != null) {	
-			articleEntities = articleRepository.findListBySlugOrTitleOrDescriptionOrBody(title,title,title,title);
-		}
-		return convertToArticleList(articleEntities, authUser);
 	}
 }

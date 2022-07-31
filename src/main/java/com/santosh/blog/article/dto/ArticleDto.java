@@ -12,7 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ArticleDto {
-    private String slug;
+
+	private String slug;
 
     @NotNull
     private String title;
